@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NG-ZORRO on Ant Design 6</title>
+<meta name="description" content="Side-by-side renders of every NG-ZORRO component under the opt-in Ant Design 6 stylesheet, next to Ant Design 6's own React demos and NG-ZORRO's current v4 stylesheet.">
+<style>
+/* The page is set in Ant Design 6's own default tokens, so the chrome never argues with the screenshots. */
+:root {
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --layout: #f5f5f5; --container: #ffffff; --elevated: #ffffff; --fill: rgba(0,0,0,.04); --fill-strong: rgba(0,0,0,.08);
+  --text: rgba(0,0,0,.88); --text-2: rgba(0,0,0,.65); --text-3: rgba(0,0,0,.45);
+  --border: #d9d9d9; --split: rgba(5,5,5,.06);
+  --primary: #1677ff; --primary-bg: #e6f4ff; --primary-hover: #4096ff;
+  --shot-bg: #ffffff;
+  --r: 6px; --r-lg: 8px;
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  --layout: #000000; --container: #141414; --elevated: #1f1f1f; --fill: rgba(255,255,255,.08); --fill-strong: rgba(255,255,255,.12);
+  --text: rgba(255,255,255,.85); --text-2: rgba(255,255,255,.65); --text-3: rgba(255,255,255,.45);
+  --border: #424242; --split: rgba(253,253,253,.12);
+  --primary: #1668dc; --primary-bg: #111a2c; --primary-hover: #3c89e8;
+  --shot-bg: #141414;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } }
+body { margin: 0; background: var(--layout); color: var(--text); font: 14px/1.5715 var(--font); }
+a { color: var(--primary); text-decoration: none; }
+a:hover { color: var(--primary-hover); }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .92em; background: var(--fill); padding: 1px 5px; border-radius: 4px; }
+
+/* Top bar */
+.top { background: var(--container); border-bottom: 1px solid var(--split); position: sticky; top: 0; z-index: 5; }
+.top-in { max-width: 1480px; margin: 0 auto; padding: 10px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; }
+.brand { display: flex; align-items: baseline; gap: 10px; margin-right: auto; }
+.brand h1 { font-size: 16px; font-weight: 600; margin: 0; letter-spacing: 0; }
+.brand span { color: var(--text-3); font-size: 13px; }
+.controls { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.seg { display: inline-flex; background: var(--fill); border-radius: var(--r); padding: 2px; }
+.seg button { border: 0; background: transparent; padding: 3px 12px; border-radius: 4px; color: var(--text-2); cursor: pointer; line-height: 22px; transition: color .2s, background .2s; }
+.seg button:hover { color: var(--text); }
+.seg button[aria-pressed="true"] { background: var(--elevated); color: var(--text); box-shadow: 0 1px 2px rgba(0,0,0,.08), 0 1px 6px -1px rgba(0,0,0,.05), 0 2px 4px rgba(0,0,0,.03); }
+:root[data-theme="dark"] .seg button[aria-pressed="true"] { background: var(--fill-strong); box-shadow: none; }
+.check { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; color: var(--text-2); }
+.check input { width: 16px; height: 16px; margin: 0; accent-color: var(--primary); }
+.check:hover { color: var(--text); }
+
+/* Intro */
+.intro { max-width: 1480px; margin: 0 auto; padding: 28px 24px 8px; }
+.intro h2 { font-size: 24px; font-weight: 600; margin: 0 0 8px; line-height: 1.3; max-width: 30ch; }
+.intro p { margin: 0; color: var(--text-2); max-width: 72ch; }
+.intro .meta { margin-top: 10px; color: var(--text-3); font-size: 13px; }
+.legend { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; max-width: 1000px; margin-top: 18px; }
+.legend div { border-left: 3px solid var(--border); padding: 2px 0 2px 12px; }
+.legend div:nth-child(1) { border-color: #722ed1; }
+.legend div:nth-child(2) { border-color: var(--primary); }
+.legend b { display: block; font-weight: 600; }
+.legend span { color: var(--text-3); font-size: 13px; }
+
+/* Body */
+.wrap { max-width: 1480px; margin: 0 auto; padding: 16px 24px 64px; display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 32px; align-items: start; }
+nav.side { position: sticky; top: 64px; max-height: calc(100vh - 80px); overflow: auto; padding-right: 8px; scrollbar-width: thin; }
+nav.side h3 { font-size: 12px; font-weight: 600; color: var(--text-3); margin: 14px 0 4px 12px; }
+nav.side h3:first-child { margin-top: 4px; }
+nav.side a { display: block; padding: 4px 12px; border-radius: var(--r); color: var(--text); line-height: 22px; }
+nav.side a:hover { background: var(--fill); color: var(--text); }
+nav.side a[aria-current="page"] { background: var(--primary-bg); color: var(--primary); font-weight: 500; }
+nav.side a small { float: right; color: var(--text-3); font-weight: 400; }
+.jump { display: none; width: 100%; padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--r); background: var(--container); color: var(--text); }
+
+main { min-width: 0; }
+.head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px 16px; margin: 4px 0 6px; }
+.head h2 { font-size: 22px; font-weight: 600; margin: 0; line-height: 1.3; }
+.head .count { color: var(--text-3); }
+.head .nav { margin-left: auto; display: flex; gap: 8px; }
+.head .nav a { padding: 2px 10px; border: 1px solid var(--border); border-radius: var(--r); color: var(--text-2); background: var(--container); }
+.head .nav a:hover { color: var(--primary); border-color: var(--primary); }
+.note { color: var(--text-2); margin: 0 0 18px; max-width: 80ch; }
+
+.demo { margin-bottom: 28px; }
+.demo-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 8px; }
+.demo-head h3 { font-size: 15px; font-weight: 500; margin: 0; }
+.demo-head .tag { font-size: 12px; line-height: 20px; padding: 0 7px; border-radius: 4px; background: var(--fill); color: var(--text-2); }
+.row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+body:not(.v4) .row { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 1040px; }
+body:not(.v4) .pane.v4pane { display: none; }
+.pane { min-width: 0; }
+.pane .cap { display: flex; justify-content: space-between; color: var(--text-3); font-size: 12px; margin-bottom: 4px; }
+.pane .cap b { font-weight: 500; color: var(--text-2); }
+.shot { display: block; width: 100%; padding: 0; border: 1px solid var(--border); border-radius: var(--r); background: var(--shot-bg); cursor: zoom-in; overflow: hidden; max-height: 520px; text-align: left; }
+.shot:hover { border-color: var(--primary-hover); }
+/* Both sides of a pair are scaled by the same factor (set from JS) so sizes stay comparable. */
+.shot img { display: block; width: auto; max-width: 100%; height: auto; }
+.pane.empty .shot { cursor: default; border-style: dashed; min-height: 72px; display: grid; place-items: center; color: var(--text-3); font-size: 13px; padding: 16px; }
+.pane.empty .shot:hover { border-color: var(--border); }
+
+/* Lightbox */
+dialog.lb { border: 0; padding: 0; background: var(--container); color: var(--text); border-radius: var(--r-lg); max-width: min(96vw, 1600px); max-height: 94vh; width: auto; box-shadow: 0 6px 16px rgba(0,0,0,.08), 0 3px 6px -4px rgba(0,0,0,.12), 0 9px 28px 8px rgba(0,0,0,.05); }
+dialog.lb::backdrop { background: rgba(0,0,0,.45); }
+.lb-bar { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-bottom: 1px solid var(--split); }
+.lb-bar .title { font-weight: 500; margin-right: auto; }
+.lb-bar .hint { color: var(--text-3); font-size: 12px; }
+.lb-bar .close { border: 0; background: transparent; padding: 2px 8px; border-radius: 4px; cursor: pointer; color: var(--text-3); font-size: 16px; line-height: 1; }
+.lb-bar .close:hover { background: var(--fill); color: var(--text); }
+.lb-stage { position: relative; background: var(--shot-bg); overflow: auto; max-height: calc(94vh - 50px); min-width: min(90vw, 600px); }
+.lb-stage img { display: block; max-width: 96vw; max-height: calc(94vh - 50px); object-fit: contain; object-position: top left; }
+.lb-stage img.under { position: absolute; inset: 0; opacity: 0; }
+.lb-stage.flip img.under { opacity: 1; }
+.lb-stage.flip img.over { opacity: 0; }
+
+footer { max-width: 1480px; margin: 0 auto; padding: 0 24px 40px; color: var(--text-3); font-size: 13px; }
+
+@media (max-width: 960px) {
+  .wrap { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  nav.side { position: static; max-height: none; display: none; }
+  .jump { display: block; }
+  .legend { grid-template-columns: 1fr; gap: 8px; }
+  .row, body:not(.v4) .row { grid-template-columns: minmax(0, 1fr); }
+  .top-in, .intro, .wrap, footer { padding-left: 16px; padding-right: 16px; }
+  .brand span { display: none; }
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <div class="brand"><h1>NG-ZORRO on Ant Design 6</h1><span id="brand-meta"></span></div>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="Theme" id="theme-seg">
+        <button type="button" data-theme="v6" aria-pressed="true">Light</button>
+        <button type="button" data-theme="v6-dark" aria-pressed="false">Dark</button>
+        <button type="button" data-theme="v6-compact" aria-pressed="false">Compact</button>
+      </div>
+      <label class="check"><input type="checkbox" id="show-v4"> Also show today's v4 render</label>
+    </div>
+  </div>
+</header>
+
+<section class="intro">
+  <h2>Does NG-ZORRO render like Ant Design 6 when the v6 stylesheet is switched on?</h2>
+  <p>Every mapped component, three ways: Ant Design 6.6.5's own React demo, the same NG-ZORRO demo under the opt-in v6 stylesheet, and the NG-ZORRO demo under the v4 stylesheet it ships today. Both v6 columns are styled by the same extracted CSS, so a difference between them is an NG-ZORRO DOM difference, not a theme difference. Demos are paired by name; sample text, dates and item counts can differ, so judge shape, colour, spacing and type rather than the words. Click any image to enlarge it, then press space to flip between the antd and NG-ZORRO renders in place.</p>
+  <div class="legend">
+    <div><b>Ant Design 6 (React)</b><span>The visual target. antd 6.6.5's demo of the matching name, rendered through the extracted template and tokens only.</span></div>
+    <div><b>NG-ZORRO v6</b><span>The NG-ZORRO doc-site demo with the generated v6 stylesheet and per-component patch rules switched on.</span></div>
+    <div><b>NG-ZORRO v4 today</b><span>The same demo under the shipped Less-compiled stylesheet. This output is byte-identical before and after the port.</span></div>
+  </div>
+  <p class="meta" id="meta"></p>
+</section>
+
+<div class="wrap">
+  <nav class="side" aria-label="Components" id="side"></nav>
+  <main id="main">
+    <select class="jump" id="jump" aria-label="Component"></select>
+    <div id="content"></div>
+  </main>
+</div>
+
+<footer id="foot"></footer>
+
+<dialog class="lb" id="lb">
+  <div class="lb-bar">
+    <span class="title" id="lb-title"></span>
+    <span class="hint" id="lb-hint"></span>
+    <button type="button" class="close" id="lb-close" aria-label="Close">×</button>
+  </div>
+  <div class="lb-stage" id="lb-stage"><img class="over" id="lb-over" alt=""><img class="under" id="lb-under" alt=""></div>
+</dialog>
+
+<script>
+const DATA = /*__DATA__*/null;
+const THEME_LABEL = { 'v6': 'light', 'v6-dark': 'dark', 'v6-compact': 'compact' };
+const order = DATA.groups.flatMap(g => g.components);
+const state = { theme: 'v6', component: order[0], v4: false };
+
+const fmt = d => { const [y, m, dd] = d.split('-'); const M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return `${+dd} ${M[+m - 1]} ${y}`; };
+document.getElementById('brand-meta').textContent = `antd ${DATA.antd}, ng-zorro-antd ${DATA.ngZorro}`;
+document.getElementById('meta').textContent =
+  `${DATA.stats.components} components, ${DATA.stats.pairs} antd/NG-ZORRO pairs, ${DATA.stats.shots} screenshots. Captured between ${fmt(DATA.captured.from)} and ${fmt(DATA.captured.to)} from the fork branch at ${DATA.commit.slice(0, 9)}.`;
+document.getElementById('foot').innerHTML =
+  `Generated ${fmt(DATA.generated)} by the compare harness in <code>tools/v6-compare</code> on the <a href="https://github.com/MilanJa/ng-zorro-antd/tree/feat/antd6-style-infrastructure">feat/antd6-style-infrastructure</a> branch. Ant Design demos are © Ant Design contributors, MIT. The antd demos listed as skipped in the harness import docs-only packages and are not rendered.`;
+
+function readHash() {
+  const h = location.hash.replace(/^#\/?/, '');
+  if (!h) return;
+  const [c, t] = h.split('/');
+  if (DATA.components[c]) state.component = c;
+  if (THEME_LABEL[t]) state.theme = t;
+}
+function writeHash() { history.replaceState(null, '', `#${state.component}/${state.theme}`); }
+
+function renderSide() {
+  const side = document.getElementById('side');
+  side.innerHTML = DATA.groups.map(g => `<h3>${g.name}</h3>` + g.components.map(d => {
+    const c = DATA.components[d];
+    const n = c.demos.filter(x => x.themes[state.theme]).length;
+    return `<a href="#${d}/${state.theme}" data-c="${d}" ${d === state.component ? 'aria-current="page"' : ''}>${c.name}<small>${n}</small></a>`;
+  }).join('')).join('');
+  const jump = document.getElementById('jump');
+  jump.innerHTML = DATA.groups.map(g => `<optgroup label="${g.name}">` + g.components.map(d => `<option value="${d}" ${d === state.component ? 'selected' : ''}>${DATA.components[d].name}</option>`).join('') + '</optgroup>').join('');
+}
+
+function pane(label, src, alt, extra = '') {
+  if (!src) return `<figure class="pane empty ${extra}"><div class="cap"><b>${label}</b></div><div class="shot">not captured</div></figure>`;
+  return `<figure class="pane ${extra}"><div class="cap"><b>${label}</b></div><button type="button" class="shot" data-src="${src}" data-alt="${alt}"><img src="${src}" alt="${alt}" loading="lazy"></button></figure>`;
+}
+
+function renderMain() {
+  const c = DATA.components[state.component];
+  const t = state.theme;
+  const i = order.indexOf(state.component);
+  const prev = order[(i - 1 + order.length) % order.length];
+  const next = order[(i + 1) % order.length];
+  const demos = c.demos.filter(d => d.themes[t]);
+  let html = `<div class="head"><h2>${c.name}</h2><span class="count">${demos.length} demo${demos.length === 1 ? '' : 's'}, ${THEME_LABEL[t]} theme</span>
+    <span class="nav"><a href="#${prev}/${t}">← ${DATA.components[prev].name}</a><a href="#${next}/${t}">${DATA.components[next].name} →</a></span></div>`;
+  html += c.note ? `<p class="note">${c.note}</p>` : '';
+  if (!demos.length) html += `<p class="note">No ${THEME_LABEL[t]} captures for this component.</p>`;
+  for (const d of demos) {
+    const e = d.themes[t];
+    const base = `shots/${c.dir}/${t}/${d.stem}`;
+    const antd = e.antd ? `${base}.antd.png` : null;
+    const nz = `${base}.nz.png`;
+    const v4 = d.v4 ? `shots/${c.dir}/default/${d.stem}.nz.png` : null;
+    html += `<section class="demo" data-stem="${d.stem}"><div class="demo-head"><h3>${d.stem}</h3>${d.opened ? '<span class="tag">opened state</span>' : ''}${!e.antd ? '<span class="tag">NG-ZORRO only</span>' : ''}</div>
+      <div class="row">
+        ${pane('Ant Design 6 (React)', antd, `${c.name} ${d.stem}, Ant Design 6 React demo`, 'antd')}
+        ${pane('NG-ZORRO v6', nz, `${c.name} ${d.stem}, NG-ZORRO under the v6 stylesheet`, 'nz')}
+        ${pane('NG-ZORRO v4 today', v4, `${c.name} ${d.stem}, NG-ZORRO under the v4 stylesheet`, 'v4pane')}
+      </div></section>`;
+  }
+  document.getElementById('content').innerHTML = html;
+  fitAll();
+}
+
+// Scale every image in a row by one factor: the largest that lets the widest image fit its pane.
+function fitRow(row) {
+  const shot = row.querySelector('.pane:not(.v4pane) .shot') || row.querySelector('.shot');
+  const paneW = shot ? shot.clientWidth - 2 : 0;
+  if (!paneW) return;
+  const imgs = [...row.querySelectorAll('img')].filter(i => i.naturalWidth);
+  if (!imgs.length) return;
+  const k = Math.min(1, ...imgs.map(i => paneW / i.naturalWidth));
+  for (const i of imgs) i.style.width = `${Math.round(i.naturalWidth * k)}px`;
+}
+function fitAll() { for (const r of document.querySelectorAll('#content .row')) fitRow(r); }
+document.getElementById('content').addEventListener('load', e => { if (e.target.tagName === 'IMG') fitRow(e.target.closest('.row')); }, true);
+let fitTimer; window.addEventListener('resize', () => { clearTimeout(fitTimer); fitTimer = setTimeout(fitAll, 120); });
+
+function applyTheme() {
+  document.documentElement.dataset.theme = state.theme === 'v6-dark' ? 'dark' : 'light';
+  for (const b of document.querySelectorAll('#theme-seg button')) b.setAttribute('aria-pressed', String(b.dataset.theme === state.theme));
+}
+function render() { applyTheme(); renderSide(); renderMain(); writeHash(); }
+
+document.getElementById('theme-seg').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  state.theme = b.dataset.theme; render();
+});
+document.getElementById('show-v4').addEventListener('change', e => {
+  state.v4 = e.target.checked; document.body.classList.toggle('v4', state.v4);
+  fitAll();
+  try { localStorage.setItem('show-v4', state.v4 ? '1' : '0'); } catch {}
+});
+document.getElementById('jump').addEventListener('change', e => { state.component = e.target.value; render(); window.scrollTo({ top: document.getElementById('main').offsetTop - 70 }); });
+window.addEventListener('hashchange', () => { readHash(); render(); window.scrollTo({ top: document.getElementById('main').offsetTop - 70 }); });
+
+// Lightbox with an in-place flip between the antd and NG-ZORRO renders.
+const lb = document.getElementById('lb'), stage = document.getElementById('lb-stage');
+const over = document.getElementById('lb-over'), under = document.getElementById('lb-under');
+let lbPair = null;
+document.getElementById('content').addEventListener('click', e => {
+  const btn = e.target.closest('.shot[data-src]'); if (!btn) return;
+  const section = btn.closest('.demo');
+  const antd = section.querySelector('.pane.antd .shot[data-src]');
+  const nz = section.querySelector('.pane.nz .shot[data-src]');
+  const isV4 = btn.closest('.pane').classList.contains('v4pane');
+  const a = antd ? antd.dataset.src : null, n = nz ? nz.dataset.src : null;
+  lbPair = (!isV4 && a && n) ? { a, n, aLabel: 'Ant Design 6', nLabel: 'NG-ZORRO v6' } : null;
+  const c = DATA.components[state.component];
+  over.src = btn.dataset.src; over.alt = btn.dataset.alt;
+  document.getElementById('lb-title').textContent = `${c.name} / ${section.dataset.stem} (${THEME_LABEL[state.theme]})`;
+  stage.classList.remove('flip');
+  if (lbPair) {
+    const startWithAntd = btn.dataset.src === a;
+    over.src = startWithAntd ? a : n; under.src = startWithAntd ? n : a;
+    under.alt = btn.dataset.alt;
+    stage.dataset.overLabel = startWithAntd ? lbPair.aLabel : lbPair.nLabel;
+    stage.dataset.underLabel = startWithAntd ? lbPair.nLabel : lbPair.aLabel;
+    setHint();
+  } else {
+    under.removeAttribute('src');
+    document.getElementById('lb-hint').textContent = isV4 ? 'v4 render, no antd counterpart' : 'no antd render to flip to';
+  }
+  lb.showModal();
+});
+function setHint() {
+  const showing = stage.classList.contains('flip') ? stage.dataset.underLabel : stage.dataset.overLabel;
+  document.getElementById('lb-hint').textContent = `showing ${showing}. Space or click flips`;
+}
+function flip() { if (!lbPair) return; stage.classList.toggle('flip'); setHint(); }
+stage.addEventListener('click', flip);
+lb.addEventListener('keydown', e => { if (e.key === ' ' || e.key === 'f') { e.preventDefault(); flip(); } });
+document.getElementById('lb-close').addEventListener('click', () => lb.close());
+lb.addEventListener('click', e => { if (e.target === lb) lb.close(); });
+
+try { if (localStorage.getItem('show-v4') === '1') { state.v4 = true; document.getElementById('show-v4').checked = true; document.body.classList.add('v4'); } } catch {}
+readHash();
+render();
+</script>
+</body>
+</html>
