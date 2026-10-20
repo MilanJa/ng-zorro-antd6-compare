@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>NG-ZORRO on Ant Design 6</title>
+    <script>
+      // Single Page Apps for GitHub Pages (MIT, https://github.com/rafgraph/spa-github-pages).
+      // A deep link into the embedded ng-zorro doc site (/ng-zorro-antd6-compare/site/components/x/en?theme=v6)
+      // is turned into /ng-zorro-antd6-compare/site/?p=/components/x/en&q=theme=v6, which site/index.html
+      // restores with history.replaceState before Angular boots. Two leading path segments are kept.
+      var segmentCount = 2;
+      var l = window.location;
+      l.replace(
+        l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+        l.pathname.split('/').slice(0, 1 + segmentCount).join('/') + '/?p=/' +
+        l.pathname.slice(1).split('/').slice(segmentCount).join('/').replace(/&/g, '~and~') +
+        (l.search ? '&q=' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+        l.hash
+      );
+    </script>
+  </head>
+  <body></body>
+</html>

@@ -101,6 +101,18 @@ body:not(.v4) .pane.v4pane { display: none; }
 .pane.empty .shot { cursor: default; border-style: dashed; min-height: 72px; display: grid; place-items: center; color: var(--text-3); font-size: 13px; padding: 16px; }
 .pane.empty .shot:hover { border-color: var(--border); }
 
+/* Live panes: one iframe per side, same origin, so the parent trims the doc-site page down to the one demo. */
+.row.live .pane .frame { position: relative; border: 1px solid var(--border); border-radius: var(--r); background: var(--shot-bg); overflow: hidden; }
+.row.live iframe { display: block; width: 100%; height: 160px; border: 0; background: transparent; transition: height .2s; }
+/* A frame stays invisible until the parent has trimmed the embedded page down to the demo. */
+.row.live .frame.pending iframe { visibility: hidden; }
+.row.live .frame.pending::before { content: 'loading'; position: absolute; inset: 0; display: grid; place-items: center; color: var(--text-3); font-size: 13px; }
+.row.live .frame.failed::before { content: 'the demo did not render in time; open it in a tab'; }
+.row.live .pane.empty .frame { border-style: dashed; min-height: 72px; display: grid; place-items: center; color: var(--text-3); font-size: 13px; padding: 16px; }
+.pane .cap a { color: var(--text-3); }
+.pane .cap a:hover { color: var(--primary); }
+.live-note { color: var(--text-3); font-size: 13px; margin: -8px 0 16px; }
+
 /* Lightbox */
 dialog.lb { border: 0; padding: 0; background: var(--container); color: var(--text); border-radius: var(--r-lg); max-width: min(96vw, 1600px); max-height: 94vh; width: auto; box-shadow: 0 6px 16px rgba(0,0,0,.08), 0 3px 6px -4px rgba(0,0,0,.12), 0 9px 28px 8px rgba(0,0,0,.05); }
 dialog.lb::backdrop { background: rgba(0,0,0,.45); }
@@ -135,6 +147,10 @@ footer { max-width: 1480px; margin: 0 auto; padding: 0 24px 40px; color: var(--t
   <div class="top-in">
     <div class="brand"><h1>NG-ZORRO on Ant Design 6</h1><span id="brand-meta"></span></div>
     <div class="controls">
+      <div class="seg" role="group" aria-label="View" id="mode-seg">
+        <button type="button" data-mode="live" aria-pressed="true">Live</button>
+        <button type="button" data-mode="shots" aria-pressed="false">Screenshots</button>
+      </div>
       <div class="seg" role="group" aria-label="Theme" id="theme-seg">
         <button type="button" data-theme="v6" aria-pressed="true">Light</button>
         <button type="button" data-theme="v6-dark" aria-pressed="false">Dark</button>
@@ -147,7 +163,7 @@ footer { max-width: 1480px; margin: 0 auto; padding: 0 24px 40px; color: var(--t
 
 <section class="intro">
   <h2>Does NG-ZORRO render like Ant Design 6 when the v6 stylesheet is switched on?</h2>
-  <p>Every mapped component, three ways: Ant Design 6.6.5's own React demo, the same NG-ZORRO demo under the opt-in v6 stylesheet, and the NG-ZORRO demo under the v4 stylesheet it ships today. Both v6 columns are styled by the same extracted CSS, so a difference between them is an NG-ZORRO DOM difference, not a theme difference. Demos are paired by name; sample text, dates and item counts can differ, so judge shape, colour, spacing and type rather than the words. Click any image to enlarge it, then press space to flip between the antd and NG-ZORRO renders in place.</p>
+  <p>Every mapped component, three ways: Ant Design 6.6.5's own React demo, the same NG-ZORRO demo under the opt-in v6 stylesheet, and the NG-ZORRO demo under the v4 stylesheet it ships today. Both v6 columns are styled by the same extracted CSS, so a difference between them is an NG-ZORRO DOM difference, not a theme difference. Demos are paired by name; sample text, dates and item counts can differ, so judge shape, colour, spacing and type rather than the words. The live view runs the real components in isolated frames, each with its own stylesheet, so you can open dropdowns and modals on both sides. The screenshot view holds the captures the port was verified against, including opened overlay states; click an image to enlarge it, then press space to flip between the antd and NG-ZORRO renders in place.</p>
   <div class="legend">
     <div><b>Ant Design 6 (React)</b><span>The visual target. antd 6.6.5's demo of the matching name, rendered through the extracted template and tokens only.</span></div>
     <div><b>NG-ZORRO v6</b><span>The NG-ZORRO doc-site demo with the generated v6 stylesheet and per-component patch rules switched on.</span></div>
@@ -179,34 +195,115 @@ footer { max-width: 1480px; margin: 0 auto; padding: 0 24px 40px; color: var(--t
 const DATA = /*__DATA__*/null;
 const THEME_LABEL = { 'v6': 'light', 'v6-dark': 'dark', 'v6-compact': 'compact' };
 const order = DATA.groups.flatMap(g => g.components);
-const state = { theme: 'v6', component: order[0], v4: false };
+const state = { theme: 'v6', component: order[0], v4: false, mode: 'live' };
+const SITE = 'site/';
+const siteUrl = (dir, theme, stem) => `${SITE}?p=/components/${dir}/en&q=theme=${theme}#components-${dir}-demo-${stem}`;
+const antdUrl = (dir, antd, theme) => `antd/?component=${encodeURIComponent(dir)}&demo=${encodeURIComponent(antd)}&theme=${theme}`;
 
 const fmt = d => { const [y, m, dd] = d.split('-'); const M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return `${+dd} ${M[+m - 1]} ${y}`; };
 document.getElementById('brand-meta').textContent = `antd ${DATA.antd}, ng-zorro-antd ${DATA.ngZorro}`;
 document.getElementById('meta').textContent =
-  `${DATA.stats.components} components, ${DATA.stats.pairs} antd/NG-ZORRO pairs, ${DATA.stats.shots} screenshots. Captured between ${fmt(DATA.captured.from)} and ${fmt(DATA.captured.to)} from the fork branch at ${DATA.commit.slice(0, 9)}.`;
+  `${DATA.stats.components} components, ${DATA.stats.live} demos rendered live on both sides, ${DATA.stats.pairs} screenshot pairs. Screenshots captured between ${fmt(DATA.captured.from)} and ${fmt(DATA.captured.to)}; the live frames run the fork branch at ${DATA.commit.slice(0, 9)} and antd ${DATA.antd}.`;
 document.getElementById('foot').innerHTML =
   `Generated ${fmt(DATA.generated)} by the compare harness in <code>tools/v6-compare</code> on the <a href="https://github.com/MilanJa/ng-zorro-antd/tree/feat/antd6-style-infrastructure">feat/antd6-style-infrastructure</a> branch. Ant Design demos are © Ant Design contributors, MIT. The antd demos listed as skipped in the harness import docs-only packages and are not rendered.`;
 
 function readHash() {
   const h = location.hash.replace(/^#\/?/, '');
   if (!h) return;
-  const [c, t] = h.split('/');
+  const [c, t, m] = h.split('/');
   if (DATA.components[c]) state.component = c;
   if (THEME_LABEL[t]) state.theme = t;
+  if (m === 'shots' || m === 'live') state.mode = m;
 }
-function writeHash() { history.replaceState(null, '', `#${state.component}/${state.theme}`); }
+function writeHash() { history.replaceState(null, '', `#${state.component}/${state.theme}/${state.mode}`); }
 
 function renderSide() {
   const side = document.getElementById('side');
   side.innerHTML = DATA.groups.map(g => `<h3>${g.name}</h3>` + g.components.map(d => {
     const c = DATA.components[d];
     const n = c.demos.filter(x => x.themes[state.theme]).length;
-    return `<a href="#${d}/${state.theme}" data-c="${d}" ${d === state.component ? 'aria-current="page"' : ''}>${c.name}<small>${n}</small></a>`;
+    return `<a href="#${d}/${state.theme}/${state.mode}" data-c="${d}" ${d === state.component ? 'aria-current="page"' : ''}>${c.name}<small>${n}</small></a>`;
   }).join('')).join('');
   const jump = document.getElementById('jump');
   jump.innerHTML = DATA.groups.map(g => `<optgroup label="${g.name}">` + g.components.map(d => `<option value="${d}" ${d === state.component ? 'selected' : ''}>${DATA.components[d].name}</option>`).join('') + '</optgroup>').join('');
 }
+
+function livePane(label, src, extra, missing = 'not available') {
+  if (!src) return `<figure class="pane empty ${extra}"><div class="cap"><b>${label}</b></div><div class="frame">${missing}</div></figure>`;
+  return `<figure class="pane ${extra}"><div class="cap"><b>${label}</b><a href="${src}" target="_blank" rel="noopener">open in a tab</a></div><div class="frame pending"><iframe data-src="${src}" title="${label}"></iframe></div></figure>`;
+}
+
+// The doc-site frame shows a whole component page. Same origin, so once Angular has rendered the demo's
+// code box the parent hides everything else and sizes the frame to it. The antd frame is sized to its root.
+const EMBED_CSS = `
+  app-header, app-footer, app-fixed-widgets, .main-menu, .toc-affix, .drawer-wrapper, nz-back-top, .code-box-expand-trigger, .markdown, nz-code-box, .ant-back-top { display: none !important; }
+  html, body, .page-wrapper, .main-wrapper { background: transparent !important; }
+  .main-wrapper { padding: 0 !important; } .main-container { padding: 0 !important; flex: 0 0 100% !important; max-width: 100% !important; min-height: 0 !important; margin: 0 !important; }
+  nz-code-box[data-live-target] .code-box { border: 0 !important; border-radius: 0 !important; }
+  nz-code-box[data-live-target] { display: block !important; margin: 0 !important; }
+  nz-code-box[data-live-target] .code-box { margin: 0 !important; }
+  html { scroll-behavior: auto !important; }`;
+// Frames load through a short queue as they approach the viewport: every ng-zorro frame boots the whole doc
+// site, so loading seventeen at once leaves most of them blank for a long time.
+const MAX_LOADING = 3;
+const queue = [];
+let loading = 0;
+let observer;
+function wireFrames() {
+  observer?.disconnect();
+  queue.length = 0; loading = 0;
+  observer = new IntersectionObserver(entries => {
+    for (const e of entries) {
+      if (e.isIntersecting && !e.target.dataset.queued) { e.target.dataset.queued = '1'; queue.push(e.target); observer.unobserve(e.target); }
+    }
+    pump();
+  }, { rootMargin: '400px 0px' });
+  for (const frame of document.querySelectorAll('#content iframe[data-src]')) observer.observe(frame);
+}
+function pump() {
+  while (loading < MAX_LOADING && queue.length) {
+    const frame = queue.shift();
+    if (!frame.isConnected) continue;
+    loading += 1;
+    attach(frame, () => { loading -= 1; pump(); });
+    frame.src = frame.dataset.src;
+  }
+}
+function attach(frame, done) {
+  const kind = frame.closest('.pane').classList.contains('antd') ? 'antd' : 'nz';
+  const stem = frame.closest('.demo').dataset.stem;
+  const id = `components-${state.component}-demo-${stem}`;
+  const holder = frame.closest('.frame');
+  let tries = 0, settled = false;
+  const settle = ok => { if (settled) return; settled = true; holder.classList.remove('pending'); if (!ok) holder.classList.add('failed'); done(); };
+  const tick = () => {
+    if (!frame.isConnected) return settle(false);
+    let doc;
+    try { doc = frame.contentDocument; } catch { return settle(false); }
+    if (!doc || !doc.body) return retry();
+    if (kind === 'nz') {
+      const found = doc.getElementById(id) || doc.querySelector(`nz-code-box[nzid="${id}"]`);
+      if (!found) return retry();
+      const box = found.closest('nz-code-box') || found;
+      if (!doc.getElementById('live-embed')) {
+        const style = doc.createElement('style'); style.id = 'live-embed'; style.textContent = EMBED_CSS; doc.head.appendChild(style);
+      }
+      box.setAttribute('data-live-target', '');
+      doc.documentElement.scrollTop = 0;
+      fit(frame, box.getBoundingClientRect().height + 2);
+    } else {
+      const root = doc.getElementById('antd-root');
+      if (!root || !root.children.length) return retry();
+      fit(frame, root.getBoundingClientRect().height + 32);
+    }
+    settle(true);
+    // Demos keep changing size (loading states, animations); re-measure a few more times.
+    if (tries < 40) { tries += 1; setTimeout(tick, tries < 10 ? 500 : 2000); }
+  };
+  const retry = () => { if (tries < 160) { tries += 1; setTimeout(tick, 250); } else settle(false); };
+  frame.addEventListener('load', () => { tries = 0; tick(); });
+}
+function fit(frame, h) { frame.style.height = `${Math.max(96, Math.min(900, Math.round(h)))}px`; }
 
 function pane(label, src, alt, extra = '') {
   if (!src) return `<figure class="pane empty ${extra}"><div class="cap"><b>${label}</b></div><div class="shot">not captured</div></figure>`;
@@ -224,6 +321,25 @@ function renderMain() {
     <span class="nav"><a href="#${prev}/${t}">← ${DATA.components[prev].name}</a><a href="#${next}/${t}">${DATA.components[next].name} →</a></span></div>`;
   html += c.note ? `<p class="note">${c.note}</p>` : '';
   if (!demos.length) html += `<p class="note">No ${THEME_LABEL[t]} captures for this component.</p>`;
+  if (state.mode === 'live') {
+    const liveDemos = demos.filter(d => !d.opened);
+    const openedCount = demos.length - liveDemos.length;
+    if (openedCount) html += `<p class="live-note">${openedCount} opened-state capture${openedCount === 1 ? '' : 's'} (popups, modals) are in the screenshot view; open them yourself here.</p>`;
+    for (const d of liveDemos) {
+      const nz = siteUrl(c.dir, t, d.stem);
+      const v4 = siteUrl(c.dir, 'default', d.stem);
+      const antd = d.antd ? antdUrl(c.dir, d.antd, t) : null;
+      html += `<section class="demo" data-stem="${d.stem}"><div class="demo-head"><h3>${d.stem}</h3>${!d.antd ? '<span class="tag">NG-ZORRO only</span>' : ''}</div>
+        <div class="row live">
+          ${livePane('Ant Design 6 (React)', antd, 'antd', d.antd ? '' : 'no antd demo of this name')}
+          ${livePane('NG-ZORRO v6', nz, 'nz')}
+          ${state.v4 ? livePane('NG-ZORRO v4 today', v4, 'nz v4pane') : ''}
+        </div></section>`;
+    }
+    document.getElementById('content').innerHTML = html;
+    wireFrames();
+    return;
+  }
   for (const d of demos) {
     const e = d.themes[t];
     const base = `shots/${c.dir}/${t}/${d.stem}`;
@@ -258,16 +374,21 @@ let fitTimer; window.addEventListener('resize', () => { clearTimeout(fitTimer); 
 function applyTheme() {
   document.documentElement.dataset.theme = state.theme === 'v6-dark' ? 'dark' : 'light';
   for (const b of document.querySelectorAll('#theme-seg button')) b.setAttribute('aria-pressed', String(b.dataset.theme === state.theme));
+  for (const b of document.querySelectorAll('#mode-seg button')) b.setAttribute('aria-pressed', String(b.dataset.mode === state.mode));
 }
 function render() { applyTheme(); renderSide(); renderMain(); writeHash(); }
 
+document.getElementById('mode-seg').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  state.mode = b.dataset.mode; render();
+});
 document.getElementById('theme-seg').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
   state.theme = b.dataset.theme; render();
 });
 document.getElementById('show-v4').addEventListener('change', e => {
   state.v4 = e.target.checked; document.body.classList.toggle('v4', state.v4);
-  fitAll();
+  if (state.mode === 'live') renderMain(); else fitAll();
   try { localStorage.setItem('show-v4', state.v4 ? '1' : '0'); } catch {}
 });
 document.getElementById('jump').addEventListener('change', e => { state.component = e.target.value; render(); window.scrollTo({ top: document.getElementById('main').offsetTop - 70 }); });

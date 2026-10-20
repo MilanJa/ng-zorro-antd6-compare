@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ant Design 6 demo</title>
+<style>
+  /* One antd React demo, rendered through the extracted v6 template and the theme's tokens only. The demo
+     bundle (built by ng-zorro's tools/v6-compare/build-demos.ts) adds the stylesheet link itself. */
+  body { margin: 0; padding: 16px; background: var(--ant-color-bg-container, #fff); color: var(--ant-color-text, rgba(0,0,0,.88)); font-family: var(--ant-font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif); }
+  .cmp-demo-title { display: none; }
+  .cmp-demo { margin: 0; }
+  .cmp-demo + .cmp-demo { margin-top: 24px; padding-top: 24px; border-top: 1px dashed var(--ant-color-border, #d9d9d9); }
+  #antd-root:empty::before { content: 'loading'; color: var(--ant-color-text-quaternary, #bbb); }
+  .cmp-missing { color: var(--ant-color-text-tertiary, #888); }
+</style>
+</head>
+<body>
+  <div id="antd-root"></div>
+  <script>
+    const p = new URLSearchParams(location.search);
+    const component = p.get('component');
+    if (!component) {
+      document.getElementById('antd-root').textContent = 'Add ?component=<dir>&demo=<stem>&theme=v6';
+    } else {
+      const s = document.createElement('script');
+      s.type = 'module';
+      s.src = `demos/${encodeURIComponent(component)}.js`;
+      s.onerror = () => { document.getElementById('antd-root').innerHTML = '<p class="cmp-missing">This antd demo bundle is not published.</p>'; };
+      document.body.appendChild(s);
+    }
+  </script>
+</body>
+</html>

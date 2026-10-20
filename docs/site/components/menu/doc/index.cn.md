@@ -1,0 +1,126 @@
+﻿---
+category: Components
+cols: 1
+type: 导航
+title: Menu
+subtitle: 导航菜单
+cover: 'https://gw.alipayobjects.com/zos/alicdn/3XZcjGpvK/Menu.svg'
+description: 为页面和功能提供导航的菜单列表。
+---
+
+## 何时使用
+
+导航菜单是一个网站的灵魂，用户依赖导航在各个页面中进行跳转。一般分为顶部导航和侧边导航，顶部导航提供全局性的类目和功能，侧边导航提供多级结构来收纳和排列网站架构。
+
+更多布局和导航的使用可以参考：[通用布局](/components/layout/zh)。
+
+## API
+
+```html
+<ul nz-menu>
+  <li nz-menu-item>Menu 1</li>
+  <li nz-menu-item>Menu 2</li>
+  <li nz-submenu nzTitle="SubMenu Title">
+    <ul>
+      <li nz-menu-item>SubMenu Item 1</li>
+      <li nz-menu-item>SubMenu Item 2</li>
+      <li nz-menu-item>SubMenu Item 3</li>
+    </ul>
+  </li>
+</ul>
+```
+
+### [nz-menu]
+
+| 参数                  | 说明                                                                                                                | 类型                                     | 默认值       |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- | ------------ |
+| `[nzInlineCollapsed]` | `inline` 时菜单是否收起状态；无图标的一级菜单项或子菜单此时显示标题首字                                             | `boolean`                                | -            |
+| `[nzInlineIndent]`    | `inline` 模式的菜单缩进宽度                                                                                         | `number`                                 | `24`         |
+| `[nzMode]`            | 菜单类型，现在支持垂直、水平、和内嵌模式三种                                                                        | `'vertical' \| 'horizontal' \| 'inline'` | `'vertical'` |
+| `[nzSelectable]`      | 是否允许选中                                                                                                        | `boolean`                                | `true`       |
+| `[nzTheme]`           | 主题颜色                                                                                                            | `'light' \| 'dark'`                      | `'light'`    |
+| `[nzDisabled]`        | 禁用菜单内的全部菜单项与子菜单                                                                                      | `boolean`                                | `false`      |
+| `[nzTooltip]`         | 菜单收起（`nzInlineCollapsed`）时一级菜单项悬停显示标题提示，`false` 关闭；自带 `nz-tooltip` 的菜单项保留自己的提示 | `boolean`                                | `true`       |
+| `[nzExpandIcon]`      | 自定义子菜单展开图标，模板上下文的 `$implicit` 为子菜单展开状态；水平模式的子菜单保留默认箭头                       | `TemplateRef<{ $implicit: boolean }>`    | -            |
+| `(nzClick)`           | 点击 `nz-menu-item` 输出属性                                                                                        | `EventEmitter<NzMenuItemComponent>`      |              |
+
+### [nz-menu-item]
+
+| 参数                   | 说明                                                                                                                         | 类型                          | 默认值  |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ----------------------------- | ------- |
+| `[nzDisabled]`         | 是否禁用                                                                                                                     | `boolean`                     | `false` |
+| `[nzSelected]`         | 是否被选中                                                                                                                   | `boolean`                     | `false` |
+| `[nzMatchRouter]`      | 是否根据 [routerLink](https://www.angular.cn/api/router/RouterLink) 自动设定 `nzSelected`                                    | `boolean`                     | `false` |
+| `[nzMatchRouterExact]` | 是否路由完整精确匹配, 详见 [routerLinkActiveOptions](https://angular.cn/api/router/RouterLinkActive#routerLinkActiveOptions) | `boolean`                     | `false` |
+| `[nzDanger]`           | 展示错误状态样式                                                                                                             | `boolean`                     | `false` |
+| `[nzPaddingLeft]`      | 菜单项的左内边距（px），覆盖由 `nzInlineIndent` 与层级计算出的缩进                                                           | `number`                      | -       |
+| `[nzIcon]`             | 显示在标题前的图标类型，菜单收起时仍然可见；设置后投影的 `<nz-icon>` 被隐藏                                                  | `string`                      | -       |
+| `[nzExtra]`            | 菜单项末尾的额外内容，例如快捷键。需要 v6 样式表。                                                                           | `string \| TemplateRef<void>` | -       |
+
+### [nz-submenu]
+
+你可以使用以下三种方式来定义 `nz-submenu` 的标题
+
+```html
+<li nz-submenu nzTitle="SubTitle" nzIcon="appstore"></li>
+
+<li nz-submenu>
+  <span title>
+    <nz-icon nzType="appstore" />
+    <span>SubTitle</span>
+  </span>
+</li>
+
+<li nz-submenu [nzTitle]="titleTpl"></li>
+<ng-template #titleTpl>
+  <nz-icon nzType="appstore" />
+  <span>SubTitle</span>
+</ng-template>
+```
+
+| 参数                       | 说明                                                                   | 类型                                                                                        | 默认值         |
+| -------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | -------------- |
+| `[nzPlacement]`            | 菜单弹出位置                                                           | `'bottomLeft' \| 'bottomCenter' \| 'bottomRight' \| 'topLeft' \| 'topCenter' \| 'topRight'` | `'bottomLeft'` |
+| `[nzOpen]`                 | 是否展开，可双向绑定                                                   | `boolean`                                                                                   | `false`        |
+| `[nzDisabled]`             | 是否禁用                                                               | `boolean`                                                                                   | `false`        |
+| `[nzTitle]`                | 标题内容                                                               | `string \| TemplateRef<void>`                                                               | -              |
+| `[nzIcon]`                 | 标题中 `icon` 类型                                                     | `string`                                                                                    | -              |
+| `[nzMenuClassName]`        | 自定义子菜单容器类名                                                   | `string`                                                                                    | -              |
+| `[nzTriggerSubMenuAction]` | SubMenu 展开/关闭的触发行为                                            | `'hover' \| 'click'`                                                                        | `'hover'`      |
+| `[nzPaddingLeft]`          | 子菜单标题的左内边距（px），覆盖由 `nzInlineIndent` 与层级计算出的缩进 | `number`                                                                                    | -              |
+| `(nzOpenChange)`           | 展开回调                                                               | `EventEmitter<boolean>`                                                                     | -              |
+
+`horizontal` 模式下，子菜单弹出层与标题等宽；使用 v6 样式表时，其最小宽度等于标题宽度，并随内容加宽。
+
+### [nz-menu-group]
+
+你可以使用以下三种方式来定义 `nz-menu-group` 的标题
+
+```html
+<li nz-menu-group nzTitle="SubTitle" nzIcon="appstore"></li>
+
+<li nz-menu-group>
+  <span title>
+    <nz-icon nzType="appstore" />
+    <span>SubTitle</span>
+  </span>
+</li>
+
+<li nz-menu-group [nzTitle]="titleTpl"></li>
+<ng-template #titleTpl>
+  <nz-icon nzType="appstore" />
+  <span>SubTitle</span>
+</ng-template>
+```
+
+| 参数        | 说明     | 类型                          | 默认值 |
+| ----------- | -------- | ----------------------------- | ------ |
+| `[nzTitle]` | 标题内容 | `string \| TemplateRef<void>` | -      |
+
+### [nz-menu-divider]
+
+菜单项分割线，只用在弹出菜单内。
+
+| 参数         | 说明                       | 类型      | 默认值  |
+| ------------ | -------------------------- | --------- | ------- |
+| `[nzDashed]` | 是否虚线。需要 v6 样式表。 | `boolean` | `false` |

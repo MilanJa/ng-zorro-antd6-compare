@@ -77,6 +77,18 @@ const NOTES = {
   'float-button': 'The antd float-button demos are viewport-fixed, so their captures show an empty demo box; the ng-zorro side is the meaningful one.'
 };
 
+// antd demo stem for an ng-zorro demo key: the harness's demo-map entry wins (null = ng-zorro only), else the
+// same name; only stems the harness actually bundled (build-report.json) can be rendered live.
+const demoMap = JSON.parse(readFileSync(join(src, '..', 'demo-map.json'), 'utf8'));
+const buildReport = existsSync(join(src, 'build-report.json')) ? JSON.parse(readFileSync(join(src, 'build-report.json'), 'utf8')) : {};
+function antdStem(dir, stem) {
+  const entry = demoMap[dir] ?? {};
+  const mapped = Object.prototype.hasOwnProperty.call(entry, stem) ? entry[stem] : stem;
+  if (mapped === null) return null;
+  return (buildReport[dir]?.demos ?? []).includes(mapped) ? mapped : null;
+}
+const siteDist = opt('site-dist');
+
 const isPng = f => f.endsWith('.png');
 const listStems = (dir, side) =>
   existsSync(dir)
@@ -113,7 +125,8 @@ for (const dir of dirs) {
     if (Object.keys(themes).length === 0) continue;
     if (!anyAntd && !OPENED.test(stem) && !NG_ONLY_OK.has(dir)) continue;
     const v4 = existsSync(join(src, dir, 'default', `${stem}.nz.png`));
-    demos.push({ stem, themes, v4, opened: OPENED.test(stem) });
+    const opened = OPENED.test(stem);
+    demos.push({ stem, themes, v4, opened, antd: opened ? null : antdStem(dir, stem) });
     if (anyAntd) pairTotal += 1;
   }
   if (demos.length === 0) continue;
@@ -156,11 +169,39 @@ const data = {
   antd: '6.6.5',
   ngZorro: '22.1.1',
   captured: { from: sortedDates[0], to: sortedDates[sortedDates.length - 1] },
-  stats: { components: components.length, pairs: pairTotal, shots: shotTotal },
+  stats: { components: components.length, pairs: pairTotal, shots: shotTotal, live: components.reduce((n, c) => n + c.demos.filter(d => d.antd).length, 0) },
   groups,
   components: Object.fromEntries(components.map(c => [c.dir, c]))
 };
 writeFileSync(join(outDir, 'data.json'), JSON.stringify(data));
+
+// The ng-zorro doc site (browser build with baseHref /ng-zorro-antd6-compare/site/) goes under docs/site. Its
+// index.html gets the GitHub Pages path-restore script (the 404 page turns /site/components/x/en into
+// /site/?p=/components/x/en&q=theme=v6) and loses the analytics tag, which belongs to ng.ant.design.
+if (siteDist) {
+  rmSync(join(outDir, 'site'), { recursive: true, force: true });
+  cpSync(siteDist, join(outDir, 'site'), { recursive: true });
+  const idx = join(outDir, 'site', 'index.html');
+  let html = readFileSync(idx, 'utf8');
+  html = html.replace(/<!-- Global site tag[\s\S]*?<\/script>\s*<script>[\s\S]*?gtag[\s\S]*?<\/script>/, '');
+  html = html.replace(/<link rel="(preconnect|dns-prefetch)" href="https:\/\/www\.google-analytics\.com">\s*/g, '');
+  const restore = `<script>(function (l) { var p = new URLSearchParams(l.search); var path = p.get('p'); if (!path) return; var q = p.get('q'); var base = document.querySelector('base') ? document.querySelector('base').getAttribute('href') : '/'; history.replaceState(null, '', (base.endsWith('/') ? base.slice(0, -1) : base) + path + (q ? '?' + q.replace(/~and~/g, '&') : '') + l.hash); })(window.location);</script>`;
+  // The shell that ran `ng build` may have rewritten the baseHref option as a filesystem path (MSYS); pin it.
+  html = html.replace(/<base href="[^"]*">/, `<base href="/ng-zorro-antd6-compare/site/">
+${restore}`);
+  writeFileSync(idx, html);
+  writeFileSync(join(outDir, '404.html'), readFileSync(join(here, '404.html'), 'utf8'));
+}
+mkdirSync(join(outDir, 'antd'), { recursive: true });
+writeFileSync(join(outDir, 'antd', 'index.html'), readFileSync(join(here, 'antd-pane.html'), 'utf8'));
+for (const t of ['default', 'dark', 'compact']) {
+  const css = join(src, `v6-${t}.antd.css`);
+  if (existsSync(css)) cpSync(css, join(outDir, 'antd', `v6-${t}.antd.css`));
+}
+const demoDir = join(outDir, 'antd', 'demos');
+const bundled = existsSync(demoDir) ? readdirSync(demoDir).filter(f => f.endsWith('.js')).length : 0;
+if (!bundled) console.warn('warning: docs/antd/demos is empty; run the esbuild step in README.md for live antd panes');
+if (!existsSync(join(outDir, 'site', 'index.html'))) console.warn('warning: docs/site is missing; pass --site-dist <angular browser build> for live ng-zorro panes');
 
 const template = readFileSync(join(here, 'template.html'), 'utf8');
 writeFileSync(join(outDir, 'index.html'), template.replace('/*__DATA__*/null', JSON.stringify(data)));
