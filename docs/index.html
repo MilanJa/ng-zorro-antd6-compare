@@ -109,9 +109,11 @@ dialog.lb::backdrop { background: rgba(0,0,0,.45); }
 .lb-bar .hint { color: var(--text-3); font-size: 12px; }
 .lb-bar .close { border: 0; background: transparent; padding: 2px 8px; border-radius: 4px; cursor: pointer; color: var(--text-3); font-size: 16px; line-height: 1; }
 .lb-bar .close:hover { background: var(--fill); color: var(--text); }
-.lb-stage { position: relative; background: var(--shot-bg); overflow: auto; max-height: calc(94vh - 50px); min-width: min(90vw, 600px); }
-.lb-stage img { display: block; max-width: 96vw; max-height: calc(94vh - 50px); object-fit: contain; object-position: top left; }
-.lb-stage img.under { position: absolute; inset: 0; opacity: 0; }
+/* Both renders occupy the same grid cell, so the stage is as large as the larger of the two and the flip never clips. */
+.lb-stage { display: grid; background: var(--shot-bg); overflow: auto; max-height: calc(94vh - 50px); min-width: min(90vw, 600px); cursor: pointer; }
+.lb-stage img { grid-area: 1 / 1; display: block; max-width: 96vw; max-height: calc(94vh - 50px); object-fit: contain; object-position: top left; justify-self: start; align-self: start; }
+.lb-stage img.under { opacity: 0; }
+.lb-stage img:not([src]) { display: none; }
 .lb-stage.flip img.under { opacity: 1; }
 .lb-stage.flip img.over { opacity: 0; }
 
