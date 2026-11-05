@@ -1,1 +1,0 @@
-var o=[{path:`en`,loadComponent:()=>import(`./chunk-BuJicFkY.js`)},{path:`zh`,loadComponent:()=>import(`./chunk-7ZYYddgo2.js`)}];export{o as default};

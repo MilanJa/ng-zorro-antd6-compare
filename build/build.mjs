@@ -88,6 +88,14 @@ function antdStem(dir, stem) {
   return (buildReport[dir]?.demos ?? []).includes(mapped) ? mapped : null;
 }
 const siteDist = opt('site-dist');
+// Library versions: antd from the fork's installed package, ng-zorro from its components/package.json
+// (the harness out dir lives at <fork>/tools/v6-compare/out). Overridable for builds from elsewhere.
+const forkRoot = resolve(src, '..', '..', '..');
+const readVersion = (file, fallback) => {
+  try { return JSON.parse(readFileSync(file, 'utf8')).version; } catch { return fallback; }
+};
+const antdVersion = opt('antd-version') ?? readVersion(join(forkRoot, 'node_modules', 'antd', 'package.json'), 'unknown');
+const ngZorroVersion = opt('ng-zorro-version') ?? readVersion(join(forkRoot, 'components', 'package.json'), 'unknown');
 
 const isPng = f => f.endsWith('.png');
 const listStems = (dir, side) =>
@@ -166,8 +174,8 @@ if (uncategorised.length) groups.push({ name: 'Other', components: uncategorised
 const data = {
   generated: new Date().toISOString().slice(0, 10),
   commit,
-  antd: '6.6.5',
-  ngZorro: '22.1.1',
+  antd: antdVersion,
+  ngZorro: ngZorroVersion,
   captured: { from: sortedDates[0], to: sortedDates[sortedDates.length - 1] },
   stats: { components: components.length, pairs: pairTotal, shots: shotTotal, live: components.reduce((n, c) => n + c.demos.filter(d => d.antd).length, 0) },
   groups,

@@ -78,17 +78,18 @@ description: 为页面和功能提供导航的菜单列表。
 </ng-template>
 ```
 
-| 参数                       | 说明                                                                   | 类型                                                                                        | 默认值         |
-| -------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | -------------- |
-| `[nzPlacement]`            | 菜单弹出位置                                                           | `'bottomLeft' \| 'bottomCenter' \| 'bottomRight' \| 'topLeft' \| 'topCenter' \| 'topRight'` | `'bottomLeft'` |
-| `[nzOpen]`                 | 是否展开，可双向绑定                                                   | `boolean`                                                                                   | `false`        |
-| `[nzDisabled]`             | 是否禁用                                                               | `boolean`                                                                                   | `false`        |
-| `[nzTitle]`                | 标题内容                                                               | `string \| TemplateRef<void>`                                                               | -              |
-| `[nzIcon]`                 | 标题中 `icon` 类型                                                     | `string`                                                                                    | -              |
-| `[nzMenuClassName]`        | 自定义子菜单容器类名                                                   | `string`                                                                                    | -              |
-| `[nzTriggerSubMenuAction]` | SubMenu 展开/关闭的触发行为                                            | `'hover' \| 'click'`                                                                        | `'hover'`      |
-| `[nzPaddingLeft]`          | 子菜单标题的左内边距（px），覆盖由 `nzInlineIndent` 与层级计算出的缩进 | `number`                                                                                    | -              |
-| `(nzOpenChange)`           | 展开回调                                                               | `EventEmitter<boolean>`                                                                     | -              |
+| 参数                       | 说明                                                                   | 类型                                                                                        | 默认值         | 版本   |
+| -------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | -------------- | ------ |
+| `[nzPlacement]`            | 菜单弹出位置                                                           | `'bottomLeft' \| 'bottomCenter' \| 'bottomRight' \| 'topLeft' \| 'topCenter' \| 'topRight'` | `'bottomLeft'` |        |
+| `[nzOpen]`                 | 是否展开，可双向绑定                                                   | `boolean`                                                                                   | `false`        |        |
+| `[nzDisabled]`             | 是否禁用                                                               | `boolean`                                                                                   | `false`        |        |
+| `[nzTitle]`                | 标题内容                                                               | `string \| TemplateRef<void>`                                                               | -              |        |
+| `[nzIcon]`                 | 标题中 `icon` 类型                                                     | `string`                                                                                    | -              |        |
+| `[nzTheme]`                | 子菜单弹出层的主题颜色                                                 | `'light' \| 'dark'`                                                                         | 父菜单主题     | 22.2.0 |
+| `[nzMenuClassName]`        | 自定义子菜单容器类名                                                   | `string`                                                                                    | -              |        |
+| `[nzTriggerSubMenuAction]` | SubMenu 展开/关闭的触发行为                                            | `'hover' \| 'click'`                                                                        | `'hover'`      |        |
+| `[nzPaddingLeft]`          | 子菜单标题的左内边距（px），覆盖由 `nzInlineIndent` 与层级计算出的缩进 | `number`                                                                                    | -              |        |
+| `(nzOpenChange)`           | 展开回调                                                               | `EventEmitter<boolean>`                                                                     | -              |        |
 
 `horizontal` 模式下，子菜单弹出层与标题等宽；使用 v6 样式表时，其最小宽度等于标题宽度，并随内容加宽。
 
